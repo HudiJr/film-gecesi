@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ekran Paylaşımı ve Time-Shift Player</title>
+    <style>
+        .video-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .video-card {
+            width: 100%;
+            max-width: 500px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            color: white;
+        }
+        video {
+            width: 100%;
+            background-color: #000;
+            border-radius: 6px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        button {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .live-badge {
+            background-color: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .live-badge.delayed {
+            background-color: #f39c12;
+        }
+        .error-msg {
+            color: #ff4d4d;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Live Screen Share & Rewind</h2>
+
+    <!-- Ekran Paylaşımı Başlatma Butonları -->
+    <button id="shareBtn">Ekranımı Paylaş</button>
+    <button id="stopBtn" style="display: none; background-color: #dc3545;">Paylaşımı Durdur</button>
+    <p id="statusMsg" class="error-msg"></p>
+
+    <div class="video-container">
+        <!-- Yerel / Kendi Ekranınız -->
+        <div class="video-card">
+            <h3>Sizin Ekranınız</h3>
+            <video id="localVideo" autoplay playsinline muted></video>
+            
+            <!-- Kendi Ekranınız İçin Sarma Kontrolleri -->
+            <div class="controls">
+                <button id="localRewindBtn">⏪ 10s Geri</button>
+                <span id="localLiveBadge" class="live-badge">CANLI</span>
+                <button id="localForwardBtn">10s İleri ⏩</button>
+                <button id="localGoLiveBtn" style="display: none; background-color: #28a745;">🔴 Canlıya Dön</button>
+            </div>
+        </div>
+
+        <!-- Partnerin Ekranı -->
+        <div class="video-card">
+            <h3>Partnerin Ekranı</h3>
+            <video id="remoteVideo" autoplay playsinline></video>
+            
+            <!-- Partner Ekranı İçin Sarma Kontrolleri -->
+            <div class="controls">
+                <button id="remoteRewindBtn">⏪ 10s Geri</button>
+                <span id="remoteLiveBadge" class="live-badge">CANLI</span>
+                <button id="remoteForwardBtn">10s İleri ⏩</button>
+                <button id="remoteGoLiveBtn" style="display: none; background-color: #28a745;">🔴 Canlıya Dön</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="client.js"></script>
+</body>
+</html>
