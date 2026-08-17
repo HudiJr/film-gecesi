@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film Gecesi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- Üst Kontrol Paneli -->
+        <header class="top-bar">
+            <h2>Film Gecesi</h2>
+            <div class="user-info">
+                <input type="text" id="usernameInput" placeholder="Kullanıcı Adınız" value="Kullanıcı">
+                <button id="screenShareBtn" class="btn primary">Ekranı Paylaş</button>
+                <button id="cameraBtn" class="btn secondary">Kamerayı Aç</button>
+            </div>
+        </header>
+
+        <!-- 6 Kişilik Kamera ve Ekran Alanı -->
+        <main class="content-area">
+            <!-- Ekran Paylaşımı Ana Alanı -->
+            <div class="screen-view-container">
+                <video id="mainScreenVideo" autoplay playsinline muted></video>
+                <div id="screenSharePlaceholder" class="placeholder">
+                    <p>Henüz ekran paylaşımı başlatılmadı</p>
+                </div>
+            </div>
+
+            <!-- 6 Kişilik Kamera Izgarası -->
+            <div class="camera-grid" id="cameraGrid">
+                <!-- Katılımcı kameraları buraya dinamik eklenecek (Max 6) -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Socket.io ve PeerJS Bağlantıları -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
