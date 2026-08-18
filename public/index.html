@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film Gecesi 🍿</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- PeerJS ve Socket.io Kütüphaneleri -->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+
+    <!-- GİRİŞ VE PROFİL OLUŞTURMA SAYFASI -->
+    <div id="authPage" class="auth-container">
+        <div class="auth-card">
+            <h1>Film Gecesi 🍿</h1>
+            <p>Sevgilinle birlikte film izle, sohbet et ve eğlen!</p>
+            <div class="auth-form">
+                <input type="text" id="authUsername" placeholder="Kullanıcı Adın" autocomplete="off">
+                
+                <div class="avatar-selection-box">
+                    <label class="avatar-upload-label">
+                        📁 Bilgisayardan Fotoğraf Seç
+                        <input type="file" id="authFileAvatar" accept="image/*" style="display: none;">
+                    </label>
+                    <span class="avatar-sep">veya hazır avatarlardan seç:</span>
+                    <div class="preset-avatars">
+                        <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150" class="preset-avatar selected" alt="Avatar 1">
+                        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150" class="preset-avatar" alt="Avatar 2">
+                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150" class="preset-avatar" alt="Avatar 3">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="preset-avatar" alt="Avatar 4">
+                    </div>
+                </div>
+
+                <div class="selected-preview-container">
+                    <img id="selectedAvatarPreview" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150" class="profile-avatar-preview">
+                    <span id="selectedAvatarText">Hazır Avatar Seçildi</span>
+                </div>
+
+                <button id="authLoginBtn" class="btn-create">Odaya Geçiş Yap 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ODA KURMA / KATILMA SAYFASI (LANDING) -->
+    <div id="landingPage" class="landing-container" style="display: none;">
+        <div class="top-profile-bar">
+            <img id="userAvatarPreview" src="" class="profile-avatar-small">
+            <span id="userNameDisplay">Kullanıcı</span>
+            <button id="editProfileBtn" class="btn-small">Profili Düzenle</button>
+        </div>
+
+        <div class="landing-card">
+            <h1>Oda İşlemleri</h1>
+            <p>Yeni bir oda kur ya da mevcut bir odaya katıl.</p>
+            <div class="landing-form">
+                <input type="text" id="landingRoomInput" placeholder="Oda Adı (Örn: ozi)" autocomplete="off">
+                <input type="password" id="landingPassword" placeholder="Oda Şifresi (İsteğe bağlı)" autocomplete="off">
+                <div class="landing-buttons">
+                    <button id="landingCreateBtn" class="btn-create">Oda Kur</button>
+                    <button id="landingJoinBtn" class="btn-join">Odaya Katıl</button>
+                </div>
+            </div>
+
+            <div class="landing-rooms-section">
+                <h3>Aktif Odalar</h3>
+                <div id="landingRoomsList" class="landing-rooms-list">
+                    <span>Odalar yükleniyor...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANA FİLM / ODA SAYFASI -->
+    <div id="roomPage" class="room-page" style="display: none;">
+        <!-- ÜST BİLGİ ÇUBUĞU -->
+        <header class="header">
+            <h1 id="roomTitleDisplay">Film Gecesi 🍿</h1>
+            <div class="room-controls">
+                <div class="room-user-info">
+                    <img id="roomUserAvatar" src="" class="profile-avatar-small">
+                    <span id="displayUsername" class="user-badge">Kullanıcı</span>
+                </div>
+                <button id="leaveBtn" class="leave-btn">Odadan Ayrıl</button>
+            </div>
+        </header>
+
+        <!-- AKTİF ODALAR ÜST LİSTESİ -->
+        <div class="rooms-bar">
+            <span class="rooms-title">Aktif Diğer Odalar:</span>
+            <div id="roomsList" class="rooms-list"></div>
+        </div>
+
+        <!-- ANA İÇERİK ALANI -->
+        <div class="main-container">
+            <!-- VİDEO / MEDYA OYNATICI BÖLÜMÜ -->
+            <div class="video-section">
+                <!-- PLATFORM SEÇİM BUTONLARI -->
+                <div class="platform-bar">
+                    <button class="plat-btn netflix" id="netflixModalBtn">Netflix</button>
+                    <button class="plat-btn youtube" id="ytModalBtn">YouTube</button>
+                    <button class="plat-btn google" id="googleModalBtn">Google</button>
+                    <button class="plat-btn screen-share" id="shareScreenBtn">Ekranımı Paylaş</button>
+                </div>
+
+                <!-- YOUTUBE ARAMA / URL ÇUBUĞU -->
+                <div id="ytInputBar" class="yt-input-bar" style="display: none;">
+                    <input type="text" id="ytUrlInput" placeholder="YouTube linki yapıştırın veya arayın (örn: futbol)...">
+                    <button id="ytLoadBtn">Oynat / Ara</button>
+                </div>
+
+                <!-- GOOGLE ARAMA ÇUBUĞU -->
+                <div id="googleInputBar" class="yt-input-bar" style="display: none;">
+                    <input type="text" id="googleUrlInput" placeholder="Google'da aranacak kelime veya site yazın...">
+                    <button id="googleLoadBtn">Ara</button>
+                </div>
+
+                <!-- OYNATICI ALANI -->
+                <div class="player-wrapper">
+                    <!-- Başlangıç / Boş Ekran Yazısı -->
+                    <div id="noStreamPlaceholder" class="placeholder-box">
+                        <p>Henüz bir medya açılmadı</p>
+                        <small>Yukarıdaki butonları kullanarak YouTube, Netflix veya Google açabilirsin.</small>
+                    </div>
+
+                    <!-- YouTube Oynatıcı Alanı (API İçin) -->
+                    <div id="youtubePlayerContainer" style="display: none; width: 100%; height: 100%;"></div>
+
+                    <!-- Ekran Paylaşımı İçin Video Etiketi -->
+                    <video id="mainVideo" autoplay playsinline style="display: none;"></video>
+
+                    <!-- Google / Harici Siteler İçin İframe ve Geri Tuşu -->
+                    <div id="iframeWrapper" style="display: none; width: 100%; height: 100%; position: relative;">
+                        <button id="iframeBackBtn" style="position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(0,0,0,0.8); color: white; border: 1px solid #555; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;">⬅️ Geri Dön</button>
+                        <iframe id="googlePlayer" style="width: 100%; height: 100%; border: none;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAĞ PANEL: KAMERALAR VE SOHBET -->
+            <div class="sidebar">
+                <!-- KAMERALAR GRİDİ -->
+                <div class="cameras-grid" id="camerasGrid">
+                    <!-- Kendi Kameramız -->
+                    <div class="camera-card" id="localCameraCard">
+                        <video id="localVideo" autoplay playsinline muted></video>
+                        <span class="cam-label">Siz</span>
+                    </div>
+                </div>
+
+                <!-- KAMERA & MİKROFON KONTROLLERİ -->
+                <div class="media-controls">
+                    <button id="toggleMicBtn" class="control-btn">🎤 Mikrofon: Açık</button>
+                    <button id="toggleCamBtn" class="control-btn">📷 Kamera: Açık</button>
+                    <button id="switchCamBtn" class="control-btn">🔄 Ön/Arka Kamera</button>
+                </div>
+
+                <!-- SOHBET ALANI -->
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-bar">
+                        <input type="text" id="msgInput" placeholder="Mesaj yazın..." autocomplete="off">
+                        <button id="sendBtn">Gönder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MESAJ BİLDİRİM BALONU -->
+    <div id="messageNotification" class="message-notification" style="display: none;">
+        <span id="notifSender"></span>: <span id="notifText"></span>
+    </div>
+
+    <script src="client.js"></script>
+</body>
+</html>
